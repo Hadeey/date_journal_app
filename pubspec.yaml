@@ -1,0 +1,47 @@
+name: date_journal_app
+description: "Une app pour noter et analyser ses dates"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # UI
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.0
+  
+  # Supabase
+  supabase_flutter: ^2.9.1
+  
+  # State Management
+  flutter_riverpod: ^2.6.1
+  
+  # Navigation
+  go_router: ^14.6.2
+  
+  # Utilitaires
+  intl: ^0.19.0  # Pour formater les dates
+  uuid: ^4.5.1
+  
+  # Auth biométrique
+  local_auth: ^2.3.0
+  
+  # Stockage local
+  shared_preferences: ^2.3.3
+  fl_chart: ^1.1.1
+  
+  # Images (pour plus tard quand tu ajouteras les photos)
+  # image_picker: ^1.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
