@@ -8,7 +8,8 @@ final datesRepositoryProvider = Provider<DatesRepository>((ref) {
   return DatesRepository(Supabase.instance.client);
 });
 
-final datesProvider = AsyncNotifierProvider<DatesController, List<DateEntry>>(DatesController.new);
+final datesProvider = AsyncNotifierProvider<DatesController, List<DateEntry>>(
+    DatesController.new);
 
 class DatesController extends AsyncNotifier<List<DateEntry>> {
   @override
@@ -25,27 +26,39 @@ class DatesController extends AsyncNotifier<List<DateEntry>> {
 
   Future<void> createDate(DateEntry date) async {
     state = const AsyncValue.loading();
-    await AsyncValue.guard(() async {
+    try {
       await ref.read(datesRepositoryProvider).createDate(date);
-    });
-    ref.invalidateSelf();
+      ref.invalidateSelf();
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      rethrow;
+    }
   }
 
   Future<void> updateDate(DateEntry date) async {
     state = const AsyncValue.loading();
-    await AsyncValue.guard(() async {
+    try {
       await ref.read(datesRepositoryProvider).updateDate(date);
-    });
-    ref.invalidateSelf();
+      ref.invalidateSelf();
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      rethrow;
+    }
   }
 
   Future<void> deleteDate(String id) async {
-    // We could do optimistic update here too
-    await ref.read(datesRepositoryProvider).deleteDate(id);
-    ref.invalidateSelf();
+    try {
+      // Optimistic update could go here, but simple invalidate is safer
+      await ref.read(datesRepositoryProvider).deleteDate(id);
+      ref.invalidateSelf();
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      rethrow;
+    }
   }
 }
 
-final dateDetailProvider = FutureProvider.family<DateEntry?, String>((ref, id) async {
+final dateDetailProvider =
+    FutureProvider.family<DateEntry?, String>((ref, id) async {
   return ref.read(datesRepositoryProvider).getDate(id);
 });

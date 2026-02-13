@@ -107,10 +107,6 @@ class DateEntry {
       'green_flags': greenFlags,
       'red_flags': redFlags,
       'my_notes': myNotes,
-      'mood': mood,
-      'highlights': highlights,
-      'date_type': dateType,
-      'spent_night_together': spentNightTogether,
       'created_at': createdAt.toIso8601String(),
     };
   }

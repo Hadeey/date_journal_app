@@ -67,16 +67,43 @@ class DateDetailScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // ... existing code ...
                 // Header
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      date.person?.firstName ?? 'Inconnu',
-                      style: AppTextStyles.h1.copyWith(
-                        fontSize: 32,
-                        color: AppColors.text,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            date.person?.firstName ?? 'Inconnu',
+                            style: AppTextStyles.h1.copyWith(
+                              fontSize: 32,
+                              color: AppColors.text,
+                            ),
+                          ),
+                        ),
+                        if (date.mood != null)
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              date.mood!,
+                              style: const TextStyle(fontSize: 32),
+                            ),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -97,6 +124,7 @@ class DateDetailScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 32),
 
+                // ... existing Date/Time/Location ...
                 Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   padding:
@@ -314,6 +342,30 @@ class DateDetailScreen extends ConsumerWidget {
                         icon: Icons.person_outline),
                   ),
 
+                if (date.awkwardMoments != null &&
+                    date.awkwardMoments!.isNotEmpty)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: _DetailSection(
+                        title: 'Moments gênants / drôles',
+                        content: date.awkwardMoments!,
+                        icon: Icons.sentiment_neutral),
+                  ),
+
                 const SizedBox(height: 16),
                 if (date.greenFlags != null && date.greenFlags!.isNotEmpty)
                   Container(
@@ -321,8 +373,6 @@ class DateDetailScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: AppColors.success.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border:
-                          Border.all(color: AppColors.success.withOpacity(0.3)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -355,8 +405,6 @@ class DateDetailScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: AppColors.error.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border:
-                          Border.all(color: AppColors.error.withOpacity(0.3)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -382,6 +430,38 @@ class DateDetailScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
+
+                if (date.highlights != null && date.highlights!.isNotEmpty) ...[
+                  const SizedBox(height: 24),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF9C4), // Light yellow
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFFFD54F)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.lightbulb_outline,
+                                color: Color(0xFFF57F17)),
+                            const SizedBox(width: 8),
+                            Text('À retenir',
+                                style: AppTextStyles.h3
+                                    .copyWith(color: const Color(0xFFF57F17))),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          date.highlights!,
+                          style: AppTextStyles.body,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
 
                 if (date.myNotes != null && date.myNotes!.isNotEmpty) ...[
                   const SizedBox(height: 24),
@@ -442,7 +522,6 @@ class _DetailSection extends StatelessWidget {
                 Text(
                   content,
                   style: AppTextStyles.body.copyWith(
-                    fontWeight: FontWeight.bold,
                     color: AppColors.text,
                     fontSize: 16,
                   ),

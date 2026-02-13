@@ -8,7 +8,8 @@ final personsRepositoryProvider = Provider<PersonsRepository>((ref) {
   return PersonsRepository(Supabase.instance.client);
 });
 
-final personsProvider = AsyncNotifierProvider<PersonsController, List<Person>>(PersonsController.new);
+final personsProvider = AsyncNotifierProvider<PersonsController, List<Person>>(
+    PersonsController.new);
 
 class PersonsController extends AsyncNotifier<List<Person>> {
   @override
@@ -17,19 +18,22 @@ class PersonsController extends AsyncNotifier<List<Person>> {
   }
 
   Future<List<Person>> _fetchPersons() async {
-     // Ensure user is authenticated
-     final user = ref.read(authRepositoryProvider).getCurrentUser();
-     // Ideally we should wait or check, but repository handles auth check usually or returns empty/error
-     // The repository implementation checks for currentUser.
-     return ref.read(personsRepositoryProvider).getPersons();
+    // Ensure user is authenticated
+    final user = ref.read(authRepositoryProvider).getCurrentUser();
+    // Ideally we should wait or check, but repository handles auth check usually or returns empty/error
+    // The repository implementation checks for currentUser.
+    return ref.read(personsRepositoryProvider).getPersons();
   }
 
-  Future<void> addPerson({required String firstName, String? notes}) async {
+  Future<Person?> addPerson({required String firstName, String? notes}) async {
     state = const AsyncValue.loading();
-    await AsyncValue.guard(() async {
-      await ref.read(personsRepositoryProvider).addPerson(firstName: firstName, notes: notes);
+    final result = await AsyncValue.guard(() async {
+      return ref
+          .read(personsRepositoryProvider)
+          .addPerson(firstName: firstName, notes: notes);
     });
     ref.invalidateSelf(); // Reload list
+    return result.value;
   }
 
   Future<void> deletePerson(String id) async {

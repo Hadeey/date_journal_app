@@ -11,20 +11,26 @@ class PersonsRepository {
         .from('persons')
         .select()
         .order('first_name', ascending: true);
-    
+
     return (response as List).map((e) => Person.fromJson(e)).toList();
   }
 
-  Future<void> addPerson({required String firstName, String? notes}) async {
+  Future<Person> addPerson({required String firstName, String? notes}) async {
     final user = _supabase.auth.currentUser;
     if (user == null) throw Exception('Not authenticated');
 
-    await _supabase.from('persons').insert({
-      'user_id': user.id,
-      'first_name': firstName,
-      'notes': notes,
-      'created_at': DateTime.now().toIso8601String(),
-    });
+    final response = await _supabase
+        .from('persons')
+        .insert({
+          'user_id': user.id,
+          'first_name': firstName,
+          'notes': notes,
+          'created_at': DateTime.now().toIso8601String(),
+        })
+        .select()
+        .single();
+
+    return Person.fromJson(response);
   }
 
   Future<void> updatePerson(Person person) async {
