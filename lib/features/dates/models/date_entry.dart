@@ -3,7 +3,7 @@ import 'package:date_journal_app/features/persons/models/person.dart';
 class DateEntry {
   final String id;
   final String userId;
-  final String? personId;
+  final String personId;
   final Person? person;
   final DateTime dateTime;
   final String location;
@@ -29,7 +29,7 @@ class DateEntry {
   const DateEntry({
     required this.id,
     required this.userId,
-    this.personId,
+    required this.personId,
     this.person,
     required this.dateTime,
     required this.location,
@@ -62,7 +62,7 @@ class DateEntry {
     return DateEntry(
       id: json['id'] as String,
       userId: json['user_id'] as String,
-      personId: json['person_id'] as String?,
+      personId: json['person_id'] as String? ?? '',
       person: person,
       dateTime: DateTime.parse(json['date_time'] as String),
       location: json['location'] as String? ?? '',

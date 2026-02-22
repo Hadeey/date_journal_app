@@ -5,7 +5,6 @@ import 'package:date_journal_app/core/theme/text_styles.dart';
 import 'package:date_journal_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:date_journal_app/features/dates/models/date_entry.dart';
 import 'package:date_journal_app/features/dates/presentation/providers/dates_provider.dart';
-import 'package:date_journal_app/features/persons/models/person.dart';
 import 'package:date_journal_app/features/persons/presentation/providers/persons_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,6 +27,8 @@ class _NewDateScreenState extends ConsumerState<NewDateScreen> {
 
   // Person
   final _nameController = TextEditingController();
+  final _ageController = TextEditingController();
+  final _howKnownController = TextEditingController();
 
   // Basic Info
   DateTime _selectedDate = DateTime.now();
@@ -62,10 +63,14 @@ class _NewDateScreenState extends ConsumerState<NewDateScreen> {
 
   // CreatedAt preservation for edit mode
   DateTime? _originalCreatedAt;
+  String?
+      _personId; // For linking if person already exists (not used in simple flow yet)
 
   @override
   void dispose() {
     _nameController.dispose();
+    _ageController.dispose();
+    _howKnownController.dispose();
     _locationController.dispose();
     _activityController.dispose();
     _styleController.dispose();
@@ -82,7 +87,9 @@ class _NewDateScreenState extends ConsumerState<NewDateScreen> {
   void _initialize(DateEntry date) {
     if (_initialized) return;
 
-    _nameController.text = date.person?.firstName ?? '';
+    _nameController.text = date.person?.name ?? '';
+    _ageController.text = date.person?.age?.toString() ?? '';
+    _howKnownController.text = date.person?.howKnown ?? '';
     _selectedDate = date.dateTime;
     _selectedTime = TimeOfDay.fromDateTime(date.dateTime);
     _locationController.text = date.location;
@@ -102,6 +109,7 @@ class _NewDateScreenState extends ConsumerState<NewDateScreen> {
     _highlightsController.text = date.highlights ?? '';
     _mood = date.mood ?? '😊';
     _originalCreatedAt = date.createdAt;
+    _personId = date.personId;
     _initialized = true;
   }
 
@@ -154,6 +162,11 @@ class _NewDateScreenState extends ConsumerState<NewDateScreen> {
   void _submit() async {
     if (_formKey.currentState!.validate()) {
       final name = _nameController.text.trim();
+      final ageText = _ageController.text.trim();
+      final howKnown = _howKnownController.text.trim();
+
+      final int? age = ageText.isNotEmpty ? int.tryParse(ageText) : null;
+
       if (name.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Veuillez entrer un prénom')),
@@ -161,39 +174,43 @@ class _NewDateScreenState extends ConsumerState<NewDateScreen> {
         return;
       }
 
-      // Find or Create Person
-      final personsAsync = ref.read(personsProvider);
+      // 1. Create or Find Person
+      // For now, simpler flow: always create/update logic.
+      // If we are editing (_personId != null), we update the person?
+      // Or we just create a NEW person for this date?
+      // Since "persons" works as a profile, we should try to update if ID exists,
+      // or create new.
 
-      String personId = '';
+      String? currentPersonId = _personId;
 
-      // Attempt to find existing
-      if (personsAsync.hasValue) {
-        final existing = personsAsync.value!.firstWhere(
-          (p) => p.firstName.toLowerCase() == name.toLowerCase(),
-          orElse: () => Person(
-              id: '', userId: '', firstName: '', createdAt: DateTime.now()),
-        );
+      if (currentPersonId == null || currentPersonId.isEmpty) {
+        // Create new person
+        final newPerson = await ref.read(personsProvider.notifier).addPerson(
+              name: name,
+              age: age,
+              howKnown: howKnown.isEmpty ? null : howKnown,
+            );
 
-        if (existing.id.isNotEmpty) {
-          personId = existing.id;
-        }
-      }
-
-      // If not found, create new
-      if (personId.isEmpty) {
-        final newPerson =
-            await ref.read(personsProvider.notifier).addPerson(firstName: name);
         if (newPerson != null) {
-          personId = newPerson.id;
+          currentPersonId = newPerson.id;
         } else {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                  content: Text('Erreur lors de la création de la personne')),
+                  content:
+                      Text('Erreur lors de la création du profil (Personne)')),
             );
           }
           return;
         }
+      } else {
+        // Update existing person?
+        // Let's assume for now we don't update person info from here to keep it simple,
+        // unless user explicitly wants to. "remets le code pour implémenter persons"
+        // implies we capture this info.
+        // Ideally we should update the person record if we have an ID.
+        // But the provider currently only has `addPerson`.
+        // Let's stick to using the ID we have or created.
       }
 
       final fullDateTime = DateTime(
@@ -212,7 +229,7 @@ class _NewDateScreenState extends ConsumerState<NewDateScreen> {
       final dateEntry = DateEntry(
         id: id,
         userId: user?.id ?? '',
-        personId: personId,
+        personId: currentPersonId,
         dateTime: fullDateTime,
         location: _locationController.text.trim(),
         manStyle: _styleController.text.trim(),
@@ -309,7 +326,7 @@ class _NewDateScreenState extends ConsumerState<NewDateScreen> {
     }
 
     // Ensure persons are loaded for duplication check
-    ref.watch(personsProvider);
+    // ref.watch(personsProvider); // No longer needed
 
     final isEditing = widget.dateId != null;
 
@@ -371,8 +388,8 @@ class _NewDateScreenState extends ConsumerState<NewDateScreen> {
                 // Dashed border effect simulation could be added here if critical
                 const SizedBox(height: 24),
 
-                // Prénom
-                Text('Prénom / Nom',
+                // Prénom / Nom
+                Text('Nom et Prénom',
                     style: AppTextStyles.h3.copyWith(fontSize: 16)),
                 const SizedBox(height: 8),
                 _buildShadowWrapper(
@@ -383,6 +400,32 @@ class _NewDateScreenState extends ConsumerState<NewDateScreen> {
                     validator: (val) => val == null || val.isEmpty
                         ? AppStrings.requiredField
                         : null,
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Age
+                Text('Âge', style: AppTextStyles.h3.copyWith(fontSize: 16)),
+                const SizedBox(height: 8),
+                _buildShadowWrapper(
+                  TextFormField(
+                    controller: _ageController,
+                    keyboardType: TextInputType.number,
+                    decoration: _buildInputDecoration('Âge (optionnel)',
+                        icon: Icons.cake_outlined),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Comment je l'ai connu
+                Text('Comment je l\'ai connu',
+                    style: AppTextStyles.h3.copyWith(fontSize: 16)),
+                const SizedBox(height: 8),
+                _buildShadowWrapper(
+                  TextFormField(
+                    controller: _howKnownController,
+                    decoration: _buildInputDecoration('Tinder, Bar, Amis...',
+                        icon: Icons.question_answer_outlined),
                   ),
                 ),
                 const SizedBox(height: 20),

@@ -1,7 +1,6 @@
 import 'package:date_journal_app/core/constants/app_colors.dart';
 import 'package:date_journal_app/core/theme/text_styles.dart';
 import 'package:date_journal_app/features/statistics/presentation/providers/stats_provider.dart';
-import 'package:date_journal_app/shared/widgets/bottom_nav_bar.dart';
 import 'package:date_journal_app/shared/widgets/loading_spinner.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -178,7 +177,6 @@ class StatsScreen extends ConsumerWidget {
         loading: () => const Center(child: LoadingSpinner()),
         error: (err, stack) => Center(child: Text('Erreur: $err')),
       ),
-      bottomNavigationBar: const BottomNavBar(currentIndex: 1),
     );
   }
 }

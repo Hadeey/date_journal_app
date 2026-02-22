@@ -1,12 +1,7 @@
 import 'package:date_journal_app/core/constants/app_colors.dart';
 import 'package:date_journal_app/core/theme/text_styles.dart';
-import 'package:date_journal_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:date_journal_app/features/dates/models/date_entry.dart';
 import 'package:date_journal_app/features/dates/presentation/providers/dates_provider.dart';
 import 'package:date_journal_app/features/dates/presentation/widgets/date_card.dart';
-import 'package:date_journal_app/features/profile/presentation/widgets/profile_header.dart';
-import 'package:date_journal_app/shared/widgets/bottom_nav_bar.dart';
-import 'package:date_journal_app/shared/widgets/loading_spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -98,13 +93,6 @@ class TimelineScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Erreur: $err')),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.push('/date/new');
-        },
-        child: const Icon(Icons.add),
-      ),
-      bottomNavigationBar: const BottomNavBar(currentIndex: 0),
     );
   }
 }

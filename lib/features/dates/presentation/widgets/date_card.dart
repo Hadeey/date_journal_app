@@ -46,7 +46,9 @@ class DateCard extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  date.person?.firstName.substring(0, 1).toUpperCase() ?? '?',
+                  (date.person?.name ?? '').isNotEmpty
+                      ? date.person!.name.substring(0, 1).toUpperCase()
+                      : '?',
                   style: AppTextStyles.h2.copyWith(
                     color: AppColors.primary,
                     fontSize: 32,
@@ -63,7 +65,7 @@ class DateCard extends StatelessWidget {
                 children: [
                   // Name
                   Text(
-                    date.person?.firstName ?? 'Inconnu',
+                    date.person?.name ?? 'Inconnu',
                     style: AppTextStyles.h3.copyWith(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,

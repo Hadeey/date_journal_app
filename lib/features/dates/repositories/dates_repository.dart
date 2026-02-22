@@ -9,9 +9,9 @@ class DatesRepository {
   Future<List<DateEntry>> getDates() async {
     final response = await _supabase
         .from('dates')
-        .select('*, persons(*)') // Join with persons table
+        .select('*, persons(*)')
         .order('date_time', ascending: false);
-    
+
     return (response as List).map((e) => DateEntry.fromJson(e)).toList();
   }
 
@@ -21,7 +21,7 @@ class DatesRepository {
         .select('*, persons(*)')
         .eq('id', id)
         .single();
-    
+
     return DateEntry.fromJson(response);
   }
 
@@ -33,14 +33,14 @@ class DatesRepository {
     final data = date.toJson();
     data.remove('created_at'); // DB handles it
     // IDs are passed from client logic (cleaner to let DB handle but client generated UUIDs are fine)
-    
+
     await _supabase.from('dates').insert(data);
   }
 
   Future<void> updateDate(DateEntry date) async {
     final data = date.toJson();
-    data.remove('created_at'); 
-    data.remove('user_id'); 
+    data.remove('created_at');
+    data.remove('user_id');
 
     await _supabase.from('dates').update(data).eq('id', date.id);
   }

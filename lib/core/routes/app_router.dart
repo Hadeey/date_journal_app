@@ -6,8 +6,10 @@ import 'package:date_journal_app/features/dates/presentation/screens/date_detail
 
 import 'package:date_journal_app/features/dates/presentation/screens/new_date_screen.dart';
 import 'package:date_journal_app/features/dates/presentation/screens/timeline_screen.dart';
+import 'package:date_journal_app/features/persons/presentation/screens/persons_list_screen.dart';
 import 'package:date_journal_app/features/profile/presentation/screens/settings_screen.dart';
 import 'package:date_journal_app/features/statistics/presentation/screens/stats_screen.dart';
+import 'package:date_journal_app/shared/widgets/main_scaffold_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -53,39 +55,57 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/signup',
         builder: (context, state) => const SignupScreen(),
       ),
+      ShellRoute(
+        builder: (context, state, child) {
+          return MainScaffoldShell(
+            currentLocation: state.matchedLocation,
+            child: child,
+          );
+        },
+        routes: [
+          GoRoute(
+            path: '/',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: TimelineScreen()),
+          ),
+          GoRoute(
+            path: '/persons',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: PersonsListScreen()),
+          ),
+          GoRoute(
+            path: '/stats',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: StatsScreen()),
+          ),
+          GoRoute(
+            path: '/profile',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: SettingsScreen()),
+          ),
+        ],
+      ),
+      // Detail routes outside Shell to hide bottom bar, or inside if desired.
+      // Usually details hide bottom bar.
       GoRoute(
-          path: '/',
-          builder: (context, state) => const TimelineScreen(),
-          routes: [
-            GoRoute(
-              path: 'date/new',
-              builder: (context, state) => const NewDateScreen(),
-            ),
-            GoRoute(
-                path: 'date/:id',
-                builder: (context, state) {
-                  final id = state.pathParameters['id']!;
-                  return DateDetailScreen(dateId: id);
-                },
-                routes: [
-                  GoRoute(
-                    path: 'edit',
-                    builder: (context, state) {
-                      final id = state.pathParameters['id']!;
-                      return NewDateScreen(dateId: id);
-                    },
-                  ),
-                ]),
-          ]),
-      GoRoute(
-        path: '/stats',
-        pageBuilder: (context, state) =>
-            const NoTransitionPage(child: StatsScreen()),
+        path: '/date/new',
+        builder: (context, state) => const NewDateScreen(),
       ),
       GoRoute(
-        path: '/profile',
-        pageBuilder: (context, state) =>
-            const NoTransitionPage(child: SettingsScreen()),
+        path: '/date/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return DateDetailScreen(dateId: id);
+        },
+        routes: [
+          GoRoute(
+            path: 'edit',
+            builder: (context, state) {
+              final id = state.pathParameters['id']!;
+              return NewDateScreen(dateId: id);
+            },
+          ),
+        ],
       ),
     ],
   );

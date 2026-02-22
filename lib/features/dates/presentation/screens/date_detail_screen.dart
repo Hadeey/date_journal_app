@@ -1,6 +1,6 @@
 import 'package:date_journal_app/core/constants/app_colors.dart';
 import 'package:date_journal_app/core/theme/text_styles.dart';
-import 'package:date_journal_app/features/dates/models/date_entry.dart';
+
 import 'package:date_journal_app/features/dates/presentation/providers/dates_provider.dart';
 import 'package:date_journal_app/shared/widgets/loading_spinner.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -76,12 +76,33 @@ class DateDetailScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Flexible(
-                          child: Text(
-                            date.person?.firstName ?? 'Inconnu',
-                            style: AppTextStyles.h1.copyWith(
-                              fontSize: 32,
-                              color: AppColors.text,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                date.person?.name ?? 'Inconnu',
+                                style: AppTextStyles.h1.copyWith(
+                                  fontSize: 32,
+                                  color: AppColors.text,
+                                ),
+                              ),
+                              if (date.person?.age != null ||
+                                  date.person?.howKnown != null) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  [
+                                    if (date.person?.age != null)
+                                      '${date.person!.age} ans',
+                                    if (date.person?.howKnown != null)
+                                      date.person!.howKnown!
+                                  ].join(' • '),
+                                  style: AppTextStyles.body.copyWith(
+                                    color: AppColors.grey500,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                         if (date.mood != null)
