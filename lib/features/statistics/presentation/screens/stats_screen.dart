@@ -277,8 +277,9 @@ class _EvolutionChart extends StatelessWidget {
                   // Show only first, last and maybe middle to avoid overlapping?
                   // For now show all as dataset is small or we can filter
                   // Simple logic: if many points, show skip 1
-                  if (scoresOverTime.length > 5 && index % 2 != 0)
+                  if (scoresOverTime.length > 5 && index % 2 != 0) {
                     return const SizedBox();
+                  }
 
                   final date = scoresOverTime[index]['date'] as DateTime;
                   // Use local date format if needed, simplified here

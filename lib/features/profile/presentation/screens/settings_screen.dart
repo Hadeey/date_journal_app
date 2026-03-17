@@ -71,7 +71,7 @@ class SettingsScreen extends ConsumerWidget {
                         title: const Text('Touch ID / Face ID'),
                         trailing: Switch(
                           value: user.bioEnabled,
-                          activeColor: AppColors.primary,
+                          activeThumbColor: AppColors.primary,
                           onChanged: (val) {
                             ref
                                 .read(profileControllerProvider.notifier)

@@ -59,8 +59,9 @@ class DateDetailScreen extends ConsumerWidget {
       ),
       body: dateAsync.when(
         data: (date) {
-          if (date == null)
+          if (date == null) {
             return const Center(child: Text('Date introuvable'));
+          }
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
